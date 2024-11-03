@@ -185,7 +185,7 @@ public void ListaAllaBöckerOchFörfattare()
                 .Select(b => new
                 {
                     b.Titel,
-                    FörfattareNamn = b.Författare, // Använd null-conditional operator för att undvika null-reference exception
+                    FörfattareNamn = b.Författare,
                     GenomsnittligtBetyg = b.Betyg.Count > 0 ? b.Betyg.Average() : 0
                 })
                 .ToList();
