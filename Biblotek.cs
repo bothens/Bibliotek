@@ -6,13 +6,10 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-
 public class Bibliotek
 {
     public List<Bok> böcker = new List<Bok>();
     public List<Författare> författare = new List<Författare>();
-   
-
     public void AddBook()
     {
         Console.Write("Ange bokens titel: ");
@@ -47,8 +44,6 @@ public class Bibliotek
         Console.WriteLine($"Boken \"{titel}\" har lagts till i biblioteket.");
      
     }
-
-    // Metod för att lägga till en ny författare
     public void AddAuthor()
     {
         Console.Write("Ange författarens namn: ");
@@ -73,8 +68,6 @@ public class Bibliotek
         Console.WriteLine($"Författaren \"{namn}\" har lagts till i biblioteket.");
         
     }
-
-    // Metod för att uppdatera en befintlig bok
     public void UppdateBook()
     {
         Console.Write("Ange titeln på boken som ska uppdateras: ");
@@ -106,8 +99,6 @@ public class Bibliotek
         Console.WriteLine($"Boken \"{bok.Titel}\" har uppdaterats.");
        
     }
-
-    // Metod för att uppdatera en befintlig författare baserat på namn
     public void UppdateraFörfattare()
     {
         Console.Write("Ange namnet på författaren som ska uppdateras: ");
@@ -129,8 +120,6 @@ public class Bibliotek
         Console.WriteLine($"Författaren \"{förf.Namn}\" har uppdaterats.");
         
     }
-
-    // Metod för att ta bort en bok baserat på titel
     public void TaBortBok()
     {
         Console.Write("Ange titeln på boken som ska tas bort: ");
@@ -147,9 +136,7 @@ public class Bibliotek
             Console.WriteLine("Boken hittades inte.");
         }
       
-    }
-
-    // Metod för att ta bort en författare baserat på namn
+    } 
     public void TaBortFörfattare()
     {
         Console.Write("Ange namnet på författaren som ska tas bort: ");
@@ -167,9 +154,6 @@ public class Bibliotek
         }
        
     }
-
-
-// Metod för att lista alla böcker och författare
 public void ListaAllaBöckerOchFörfattare()
     { 
         Console.WriteLine("Lista över alla böcker:");
@@ -183,30 +167,115 @@ public void ListaAllaBöckerOchFörfattare()
         {
             Console.WriteLine($"- {förf.Namn} från {förf.Land}");
         }
-        
     }
-
     public void SökOchFiltreraBöcker()
     {
-        Console.Write("Ange sökord (titel/författare/genre): ");
-        string sökord = Console.ReadLine().ToLower();
 
-        var resultat = böcker
-            .Where(bok => bok.Titel.ToLower().Contains(sökord) ||
-                          bok.Författare.ToLower().Contains(sökord) ||
-                          bok.Genre.ToLower().Contains(sökord))
-            .ToList();
+       Console.WriteLine("Hej vill du söka efter en Bok klicka på 1 ifall du vill filtrera efter titel, författare eller genre klicka på två");
+        string input = Console.ReadLine()!;
 
-        if (!resultat.Any())
+
+        if (input == "1")
         {
-            Console.WriteLine("Inga böcker hittades.");
+            Console.Write("Ange titeln på boken du söker: ");
+            string sökTitel = Console.ReadLine()!;
+
+            var söktaBöcker = böcker
+                .Where(b => b.Titel.Contains(sökTitel, StringComparison.OrdinalIgnoreCase))
+                .Select(b => new
+                {
+                    b.Titel,
+                    FörfattareNamn = b.Författare, // Använd null-conditional operator för att undvika null-reference exception
+                    GenomsnittligtBetyg = b.Betyg.Count > 0 ? b.Betyg.Average() : 0
+                })
+                .ToList();
+
+            if (söktaBöcker.Any())
+            {
+                Console.WriteLine("Hittade följande böcker:");
+                foreach (var bok in söktaBöcker)
+                {
+                    Console.WriteLine($"- {bok.Titel} av {bok.FörfattareNamn} (Betyg: {bok.GenomsnittligtBetyg:F1})");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Ingen bok hittades med den titeln.");
+            }
+        }
+        else if (input == "2")
+        {
+            Console.WriteLine("Vill du filtrera efter titel, författare eller genre? (Skriv 'titel', 'författare' eller 'genre')");
+            string filterType = Console.ReadLine()!.ToLower();
+
+            IEnumerable<Bok> filtreradeBöcker = Enumerable.Empty<Bok>();
+
+            switch (filterType)
+            {
+                case "titel":
+                    Console.Write("Ange del av titeln: ");
+                    string delAvTitel = Console.ReadLine()!;
+                    filtreradeBöcker = böcker.Where(b => b.Titel.Contains(delAvTitel, StringComparison.OrdinalIgnoreCase));
+                    break;
+
+                case "författare":
+                    Console.Write("Ange författarens namn: ");
+                    string författarNamn = Console.ReadLine()!;
+                    filtreradeBöcker = böcker.Where(b => b.Författare.Contains(författarNamn, StringComparison.OrdinalIgnoreCase) == true);
+                    break;
+
+                case "genre":
+                    Console.Write("Ange genre: ");
+                    string genre = Console.ReadLine()!;
+                    filtreradeBöcker = böcker.Where(b => b.Genre.Equals(genre, StringComparison.OrdinalIgnoreCase));
+                    break;
+
+                default:
+                    Console.WriteLine("Ogiltigt alternativ. Försök igen.");
+                    return;
+            }
+
+            if (filtreradeBöcker.Any())
+            {
+                Console.WriteLine("Filtrerade böcker:");
+                foreach (var bok in filtreradeBöcker)
+                {
+                    double genomsnittligtBetyg = bok.Betyg.Count > 0 ? bok.Betyg.Average() : 0;
+                    Console.WriteLine($"- {bok.Titel} av {bok.Författare} (Betyg: {genomsnittligtBetyg:F1})");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Inga böcker hittades som matchar dina kriterier.");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Ogiltig inmatning, vänligen försök igen.");
+        }
+    }
+    public void HanteraBetyg()
+    {
+        Console.Write("Ange titeln på boken du vill betygsätta: ");
+        string bokTitel = Console.ReadLine();
+
+        Console.Write("Ange betyg (1-5): ");
+        if (!int.TryParse(Console.ReadLine(), out int nyttBetyg) || nyttBetyg < 1 || nyttBetyg > 5)
+        {
+            Console.WriteLine("Betyget måste vara ett heltal mellan 1 och 5.");
             return;
         }
+        var bok = böcker.FirstOrDefault(b => b.Titel.Equals(bokTitel, StringComparison.OrdinalIgnoreCase));
 
-        resultat.ForEach(bok =>
-            Console.WriteLine($"Titel: {bok.Titel}, Författare: {bok.Författare}, Genre: {bok.Genre}, År: {bok.Publiceringsår}")
-        );
-        
+        if (bok != null)
+        {
+            bok.Betyg.Add(nyttBetyg);
+            Console.WriteLine($"Betyget {nyttBetyg} har lagts till för boken \"{bok.Titel}\".");
+        }
+        else
+        {
+            Console.WriteLine($"Boken med titeln \"{bokTitel}\" hittades inte.");
+            return;
+        }
     }
 }
-

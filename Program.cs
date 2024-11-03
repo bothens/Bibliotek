@@ -10,7 +10,8 @@ namespace ConsoleApp1
             bool start = true;
 
             Bibliotek bibliotek = new Bibliotek();
-             
+           
+
 
             string DatajsonFilPath = "LibraryData.json";
             string allaDataSomJSONType = File.ReadAllText(DatajsonFilPath);
@@ -31,8 +32,9 @@ namespace ConsoleApp1
                     Console.WriteLine("6. Ta bort författare");
                     Console.WriteLine("7. Lista alla böcker och författare");
                     Console.WriteLine("8. Sök och sortera böcker");
-                    Console.WriteLine("9. Avsluta programmet");
-                    Console.WriteLine("Välj ett alternativ (1-8): ");
+                    Console.WriteLine("9. Lämna och se betyg");
+                    Console.WriteLine("10. Avsluta programmet");
+                Console.WriteLine("Välj ett alternativ (1-8): ");
                 
 
                 string input = Console.ReadLine()!;
@@ -71,8 +73,12 @@ namespace ConsoleApp1
                         bibliotek.SökOchFiltreraBöcker();
                         break;
 
-
                     case "9":
+                        bibliotek.HanteraBetyg();
+                        break;
+
+
+                    case "10":
                             Environment.Exit(0);
                             break;
 

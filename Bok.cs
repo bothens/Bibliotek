@@ -14,6 +14,9 @@ namespace ConsoleApp1
         public int ISBN { get; set; }
         public string Genre { get; set; }
         public int Publiceringsår { get; set; }
+        public List<int> Betyg { get; set; } = new List<int>();
+
+        public double GenomsnittligtBetyg => Betyg.Any() ? Betyg.Average() : 0.0;
 
         public Bok(string titel, string författare, string genre,int isbn,int publiceringsår, int Id)
         {
