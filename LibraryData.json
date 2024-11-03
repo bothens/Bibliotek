@@ -1,0 +1,28 @@
+{
+  "böcker": [
+    {
+      "Titel": "Min resa 1",
+      "Författare": "Alexander Bothen",
+      "Genre": "Romantik",
+      "ISBN": 123456789,
+      "Publiceringsår": 2020
+    },
+    {
+      "Titel": "Min resa 2",
+      "Författare": "Isabella",
+      "Genre": "Action",
+      "ISBN": 987654321,
+      "Publiceringsår": 2021
+    }
+  ],
+  "författare": [
+    {
+      "Namn": "Alexander Bothen",
+      "Land": "Angola"
+    },
+    {
+      "Namn": "Isabella",
+       "Land": "Chile"
+    }
+  ]
+}
