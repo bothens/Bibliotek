@@ -11,7 +11,7 @@ namespace ConsoleApp1
         public int Id { get; set; }
         public string Namn { get; set; }
         public string Land { get; set; }
-
+        public List<Bok> Böcker { get; set; } = new List<Bok>();
         public Författare(string namn, string land)
         {
             Namn = namn;

@@ -1,15 +1,53 @@
 ﻿using ConsoleApp1;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 public class Bibliotek
 {
-    public List<Bok> böcker = new List<Bok>();
-    public List<Författare> författare = new List<Författare>();
+
+
+
+
+
+
+
+    public readonly string dataFilPath = "LibraryData.json";
+    public BibliotekData BibliotekData { get; set; }
+    public void LaddaData()
+    {
+        if (File.Exists(dataFilPath))
+        {
+            string jsonData = File.ReadAllText(dataFilPath);
+            BibliotekData = JsonSerializer.Deserialize<BibliotekData>(jsonData)!;
+        }
+        else
+        {
+            Console.WriteLine("Ingen JSON-fil hittades, börjar med tomt bibliotek.");
+        }
+    }
+
+    public void SparaData()
+    {
+        string jsonData = JsonSerializer.Serialize(BibliotekData, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(dataFilPath, jsonData);
+    }
+
+
+
+    public List<Bok> HämtaAllaBöcker()
+    {
+        BibliotekData.Böcker.ForEach(b => Console.WriteLine(b.Titel, b.Författare, b.Genre, b.ISBN, b.Publiceringsår, b.Betyg));
+
+        return BibliotekData.Böcker;
+    }
+
+    public List<Författare> HämtaAllaFörfattare()
+    {
+        BibliotekData.Författare.ForEach(f => Console.WriteLine(f.Namn, f.Land));
+        return BibliotekData.Författare;
+    }
+
+
+
+
     public void AddBook()
     {
         Console.Write("Ange bokens titel: ");
@@ -38,20 +76,22 @@ public class Bibliotek
             Console.WriteLine("Ogiltig inmatning. Vänligen försök igen.");
             return;
         }
-
-        Bok nyBok = new Bok(titel, författareNamn, genre, isbn, publiceringsår, Id);
-        böcker.Add(nyBok);
+        List<int> betyg = new List<int> { 5, 4, 3 };
+        Bok nyBok = new Bok(titel, författareNamn, genre, isbn, publiceringsår, Id, betyg);
+        BibliotekData.Böcker.Add(nyBok);
+        SparaData();
         Console.WriteLine($"Boken \"{titel}\" har lagts till i biblioteket.");
-     
+
     }
     public void AddAuthor()
     {
+
         Console.Write("Ange författarens namn: ");
         string namn = Console.ReadLine();
 
         Console.Write("Ange författarens land: ");
         string land = Console.ReadLine();
-       
+
         Console.Write("Ange författarens Id: ");
         string IdInput = Console.ReadLine();
         int Id;
@@ -64,16 +104,17 @@ public class Bibliotek
         }
 
         Författare nyFörfattare = new Författare(namn, land);
-        författare.Add(nyFörfattare);
+        BibliotekData.Författare.Add(nyFörfattare);
+        SparaData();
         Console.WriteLine($"Författaren \"{namn}\" har lagts till i biblioteket.");
-        
+
     }
     public void UppdateBook()
     {
         Console.Write("Ange titeln på boken som ska uppdateras: ");
         string titel = Console.ReadLine();
 
-        var bok = böcker.FirstOrDefault(b => b.Titel.Equals(titel, StringComparison.OrdinalIgnoreCase));
+        var bok = BibliotekData.Böcker.FirstOrDefault(b => b.Titel.Equals(titel, StringComparison.OrdinalIgnoreCase));
         if (bok == null)
         {
             Console.WriteLine("Boken hittades inte.");
@@ -97,14 +138,14 @@ public class Bibliotek
         }
 
         Console.WriteLine($"Boken \"{bok.Titel}\" har uppdaterats.");
-       
+
     }
     public void UppdateraFörfattare()
     {
         Console.Write("Ange namnet på författaren som ska uppdateras: ");
         string namn = Console.ReadLine();
 
-        var förf = författare.FirstOrDefault(f => f.Namn.Equals(namn, StringComparison.OrdinalIgnoreCase));
+        var förf = BibliotekData.Författare.FirstOrDefault(f => f.Namn.Equals(namn, StringComparison.OrdinalIgnoreCase));
         if (förf == null)
         {
             Console.WriteLine("Författaren hittades inte.");
@@ -118,60 +159,66 @@ public class Bibliotek
         förf.Land = Console.ReadLine();
 
         Console.WriteLine($"Författaren \"{förf.Namn}\" har uppdaterats.");
-        
+
     }
     public void TaBortBok()
     {
         Console.Write("Ange titeln på boken som ska tas bort: ");
         string titel = Console.ReadLine();
 
-        var bok = böcker.FirstOrDefault(b => b.Titel.Equals(titel, StringComparison.OrdinalIgnoreCase));
+        var bok = BibliotekData.Böcker.FirstOrDefault(b => b.Titel.Equals(titel, StringComparison.OrdinalIgnoreCase));
         if (bok != null)
         {
-            böcker.Remove(bok);
+            BibliotekData.Böcker.Remove(bok);
             Console.WriteLine($"Boken \"{bok.Titel}\" har tagits bort.");
         }
         else
         {
             Console.WriteLine("Boken hittades inte.");
         }
-      
-    } 
+
+    }
     public void TaBortFörfattare()
     {
         Console.Write("Ange namnet på författaren som ska tas bort: ");
         string namn = Console.ReadLine();
 
-        var förf = författare.FirstOrDefault(f => f.Namn.Equals(namn, StringComparison.OrdinalIgnoreCase));
+        var förf = BibliotekData.Författare.FirstOrDefault(f => f.Namn.Equals(namn, StringComparison.OrdinalIgnoreCase));
         if (förf != null)
         {
-            författare.Remove(förf);
+            BibliotekData.Författare.Remove(förf);
             Console.WriteLine($"Författaren \"{förf.Namn}\" har tagits bort.");
         }
         else
         {
             Console.WriteLine("Författaren hittades inte.");
         }
-       
+
     }
-public void ListaAllaBöckerOchFörfattare()
-    { 
-        Console.WriteLine("Lista över alla böcker:");
-        foreach (var bok in böcker)
+    public void ListaAllaBöckerOchFörfattare()
+    {
+        foreach (var bok in BibliotekData.Böcker)
+
         {
-            Console.WriteLine($"- {bok.Titel} av {bok.Författare}, {bok.ISBN},{bok.Genre}, {bok.ID} {bok.Publiceringsår}");
+
+            Console.WriteLine($"Titel: {bok.Titel}, Författare: {bok.Författare}, Genre:{bok.Genre},ISBN:{bok.ISBN},Publiceringsår{bok.Publiceringsår},Genomsnittbetyg {bok.GenomsnittligtBetyg:F2}");
         }
 
-        Console.WriteLine("\nLista över alla författare:");
-        foreach (var förf in författare)
+        foreach (var förf in BibliotekData.Författare)
+
+
         {
-            Console.WriteLine($"- {förf.Namn} från {förf.Land}");
+
+            Console.WriteLine($"Namn: {förf.Namn}, Land {förf.Land:F2}");
         }
     }
+
+
     public void SökOchFiltreraBöcker()
     {
+        var data = HämtaAllaBöcker();
 
-       Console.WriteLine("Hej vill du söka efter en Bok klicka på 1 ifall du vill filtrera efter titel, författare eller genre klicka på två");
+        Console.WriteLine("Hej vill du söka efter en Bok klicka på 1 ifall du vill filtrera efter titel, författare eller genre klicka på två");
         string input = Console.ReadLine()!;
 
 
@@ -180,7 +227,7 @@ public void ListaAllaBöckerOchFörfattare()
             Console.Write("Ange titeln på boken du söker: ");
             string sökTitel = Console.ReadLine()!;
 
-            var söktaBöcker = böcker
+            var söktaBöcker = BibliotekData.Böcker
                 .Where(b => b.Titel.Contains(sökTitel, StringComparison.OrdinalIgnoreCase))
                 .Select(b => new
                 {
@@ -215,19 +262,19 @@ public void ListaAllaBöckerOchFörfattare()
                 case "titel":
                     Console.Write("Ange del av titeln: ");
                     string delAvTitel = Console.ReadLine()!;
-                    filtreradeBöcker = böcker.Where(b => b.Titel.Contains(delAvTitel, StringComparison.OrdinalIgnoreCase));
+                    filtreradeBöcker = BibliotekData.Böcker.Where(b => b.Titel.Contains(delAvTitel, StringComparison.OrdinalIgnoreCase));
                     break;
 
                 case "författare":
                     Console.Write("Ange författarens namn: ");
                     string författarNamn = Console.ReadLine()!;
-                    filtreradeBöcker = böcker.Where(b => b.Författare.Contains(författarNamn, StringComparison.OrdinalIgnoreCase) == true);
+                    filtreradeBöcker = BibliotekData.Böcker.Where(b => b.Författare.Contains(författarNamn, StringComparison.OrdinalIgnoreCase) == true);
                     break;
 
                 case "genre":
                     Console.Write("Ange genre: ");
                     string genre = Console.ReadLine()!;
-                    filtreradeBöcker = böcker.Where(b => b.Genre.Equals(genre, StringComparison.OrdinalIgnoreCase));
+                    filtreradeBöcker = BibliotekData.Böcker.Where(b => b.Genre.Equals(genre, StringComparison.OrdinalIgnoreCase));
                     break;
 
                 default:
@@ -256,6 +303,7 @@ public void ListaAllaBöckerOchFörfattare()
     }
     public void HanteraBetyg()
     {
+        var data = HämtaAllaBöcker();
         Console.Write("Ange titeln på boken du vill betygsätta: ");
         string bokTitel = Console.ReadLine();
 
@@ -265,7 +313,7 @@ public void ListaAllaBöckerOchFörfattare()
             Console.WriteLine("Betyget måste vara ett heltal mellan 1 och 5.");
             return;
         }
-        var bok = böcker.FirstOrDefault(b => b.Titel.Equals(bokTitel, StringComparison.OrdinalIgnoreCase));
+        var bok = BibliotekData.Böcker.FirstOrDefault(b => b.Titel.Equals(bokTitel, StringComparison.OrdinalIgnoreCase));
 
         if (bok != null)
         {

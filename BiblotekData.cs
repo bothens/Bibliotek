@@ -10,10 +10,11 @@ namespace ConsoleApp1
     public class BibliotekData
     {
        [JsonPropertyName("böcker")]
+        public List<Bok> Böcker { get; set; }
        
 
-        public List<Bok> böcker { get; set; } = new List<Bok>();
-    public List<Författare> författare { get; set; } = new List<Författare>();
+        [JsonPropertyName("författare")]
+        public List<Författare> Författare { get; set; }
     }
 
 }
